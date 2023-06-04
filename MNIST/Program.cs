@@ -77,8 +77,7 @@ namespace MNIST
                     standardizedPixelValues[i] = double.Parse(dividedString[i + 1]) / 255.0;
 
                 //print output
-                Network sampleNN = new Network(mainNN);
-                double[] output = sampleNN.forwardPropagate(standardizedPixelValues);
+                double[] output = mainNN.forwardPropagate(standardizedPixelValues);
                 int label = int.Parse(dividedString[0]);
                 int val = output.ToList().IndexOf(output.Max());
                 if (val == label)

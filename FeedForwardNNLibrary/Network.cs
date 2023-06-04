@@ -31,7 +31,7 @@ namespace FeedForwardNNLibrary
             layers.Add(layer);
         }
 
-        public Network(Network original)
+        private Network(Network original)
         {
             for (int layerIdx = 0; layerIdx < original.layers.Count; layerIdx++)
             {
@@ -117,7 +117,7 @@ namespace FeedForwardNNLibrary
             return mse / cost.Length;
         }
 
-        internal double[] convertLayerToDoubles(List<Neuron> layer)
+        private double[] convertLayerToDoubles(List<Neuron> layer)
         {
             double[] newArray = new double[layer.Count];
             int neuronIdx = 0;
@@ -130,7 +130,7 @@ namespace FeedForwardNNLibrary
             return newArray;
         }
 
-        internal void updateWeightsAndBiases()
+        private void updateWeightsAndBiases()
         {
             layers.ForEach(layer => layer.ForEach(neuron => neuron.updateWeightsAndBias()));
         }

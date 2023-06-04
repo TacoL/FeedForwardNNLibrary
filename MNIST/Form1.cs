@@ -46,7 +46,7 @@ namespace MNIST
             //MouseDown += onMouseDown;
             //MouseUp += onMouseUp;
 
-            neuralNet = new Network(mainNN);
+            neuralNet = mainNN;
         }
 
         private void button_Enter(object sender, EventArgs e)
