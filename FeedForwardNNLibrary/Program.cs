@@ -76,52 +76,7 @@ namespace FeedForwardNNLibrary
             Application.Run(new Form1(mainNN));
         }
 
-        public static void testNetwork(Network mainNN, string fileName)
-        {
-            StreamReader srTest = new StreamReader(File.OpenRead(fileName));
-            String line = srTest.ReadLine(); //skips first line
-
-            int successes = 0;
-            int total = 0;
-            while ((line = srTest.ReadLine()) != null)
-            {
-                String lineDuplicate = line;
-                String[] dividedString = lineDuplicate.Split(',');
-
-                //standardize inputs
-                double[] standardizedPixelValues = new double[784];
-                for (int i = 0; i < standardizedPixelValues.Length; i++)
-                    standardizedPixelValues[i] = double.Parse(dividedString[i + 1]) / 255.0;
-
-                //print output
-                Network sampleNN = new Network(mainNN);
-                double[] output = sampleNN.forwardPropagate(standardizedPixelValues);
-                int label = int.Parse(dividedString[0]);
-                int val = output.ToList().IndexOf(output.Max());
-                if (val == label)
-                    successes++;
-                total++;
-            }
-
-            srTest.Close();
-            Console.WriteLine($"{successes}, {total}");
-            Console.WriteLine("Success Rate: " + ((double)successes / (double)total * 100d) + "%");
-        }
-
-        public static void addToGradients(Network mainNN, Network sampleNN)
-        {
-            for (int layerIdx = 0; layerIdx < mainNN.layers.Count; layerIdx++)
-            {
-                for (int neuronIdx = 0; neuronIdx < mainNN.layers[layerIdx].Count; neuronIdx++)
-                {
-                    Neuron mainNeuron = mainNN.layers[layerIdx][neuronIdx];
-                    Neuron sampleNeuron = sampleNN.layers[layerIdx][neuronIdx];
-                    for (int i = 0; i < mainNeuron.weightGradients.Length; i++)
-                        mainNeuron.weightGradients[i] += sampleNeuron.weightGradients[i];
-                    mainNeuron.biasGradient += sampleNeuron.biasGradient;
-                }
-            }
-        }
+        
 
         public static void createSample(String line, List<TrainingSample> trainingSamples)
         {
@@ -147,38 +102,6 @@ namespace FeedForwardNNLibrary
             {
                 trainingSamples.Add(new TrainingSample(standardizedPixelValues, targets));
             }
-        }
-
-        public static double trainSample(int batchIdx, int sampleIdx, Network mainNN, List<TrainingSample> trainingSamples)
-        {
-            double sampleMse = 0;
-
-            Network sampleNN = new Network(mainNN);
-            int sampleIdxToTest = batchIdx * Network.batchSize + sampleIdx;
-            sampleMse = sampleNN.backPropagate(trainingSamples[sampleIdxToTest].inputs, trainingSamples[sampleIdxToTest].targets);
-            lock (mainNN)
-            {
-                addToGradients(mainNN, sampleNN); //idea: perhaps lock the mainNN for this part?
-            }
-
-            return sampleMse;
-        }
-
-        public static double trainBatch(int batchIdx, Network mainNN, List<TrainingSample> trainingSamples)
-        {
-            double batchMse = 0;
-
-            List<Task> tasks = new List<Task>();
-            for (int sampleIdx = 0; sampleIdx < Network.batchSize; sampleIdx++)
-            {
-                int thisSampleIdx = sampleIdx; // makes it work with Tasks
-                tasks.Add(new Task(() => batchMse += trainSample(batchIdx, thisSampleIdx, mainNN, trainingSamples)));
-            }
-
-            tasks.ForEach(task => task.Start());
-            Task.WaitAll(tasks.ToArray());
-
-            return batchMse;
         }
     }
 }

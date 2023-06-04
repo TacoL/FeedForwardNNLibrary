@@ -9,7 +9,7 @@ namespace FeedForwardNNLibrary
     internal class Network
     {
         internal static Random r = new Random();
-        public readonly int _numInputs, _numOutputs;
+        public readonly int _numInputs;
 
         private readonly double _learningRate;
         private readonly double _momentumScalar;
@@ -17,10 +17,9 @@ namespace FeedForwardNNLibrary
 
         private List<List<Neuron>> layers = new List<List<Neuron>>();
 
-        public Network(int numInputs, int numOutputs, double learningRate, double momentumScalar, int batchSize)
+        public Network(int numInputs, double learningRate, double momentumScalar, int batchSize)
         {
             _numInputs = numInputs;
-            _numOutputs = numOutputs;
             _learningRate = learningRate;
             _momentumScalar = momentumScalar;
             _batchSize = batchSize;
@@ -67,7 +66,7 @@ namespace FeedForwardNNLibrary
             //Convert from Neuron to Double
             return convertLayerToDoubles(layers[layers.Count - 1]);
         }
-        internal double[] forwardPropagate(double[] inputs)
+        public double[] forwardPropagate(double[] inputs)
         {
             double[] outputsBeforeSoftmax = forwardPropagateBeforeSoftmax(inputs);
 
@@ -75,7 +74,7 @@ namespace FeedForwardNNLibrary
             return applySoftmax(outputsBeforeSoftmax);
         }
 
-        internal double backPropagate(double[] inputs, double[] targets)
+        private double backPropagate(double[] inputs, double[] targets)
         {
             double[] outputsBeforeSoftmax = forwardPropagateBeforeSoftmax(inputs);
             double[] outputs = applySoftmax(outputsBeforeSoftmax); //after Softmax
@@ -159,5 +158,112 @@ namespace FeedForwardNNLibrary
         {
             layers.ForEach(layer => layer.ForEach(neuron => neuron.updateWeightsAndBias()));
         }
+
+        #region Training
+        public void train(List<TrainingSample> trainingSamples, int numEpochs)
+        {
+            if (trainingSamples.Count == 0) { throw new Exception("You must have training samples!"); }
+            if (trainingSamples[0].targets.Length != layers[layers.Count - 1].Count) { throw new Exception("Your final layer must match number of targets!"); }
+
+            for (int epoch = 0; epoch < numEpochs; epoch++)
+            {
+                double mse = 0;
+                int numBatches = trainingSamples.Count / _batchSize;
+
+                //batching
+                for (int batchIdx = 0; batchIdx < numBatches; batchIdx++) //for each batch
+                {
+                    double batchMse = trainBatch(batchIdx, trainingSamples);
+
+                    mse += batchMse / _batchSize;
+                    updateWeightsAndBiases();
+                    //Console.WriteLine($"Epoch {epoch + 1} / {numEpochs}      Batch #{batchIdx + 1} / {numBatches}      BMSE = {batchMse / Network.batchSize}");
+                }
+
+                Console.WriteLine("Epoch: {0}         MSE: {1}", epoch + 1, mse / numBatches);
+            }
+        }
+
+        private double trainBatch(int batchIdx, List<TrainingSample> trainingSamples)
+        {
+            double batchMse = 0;
+
+            List<Task> tasks = new List<Task>();
+            for (int sampleIdx = 0; sampleIdx < _batchSize; sampleIdx++)
+            {
+                int thisSampleIdx = sampleIdx; // makes it work with Tasks
+                tasks.Add(new Task(() => batchMse += trainSample(batchIdx, thisSampleIdx, trainingSamples)));
+            }
+
+            tasks.ForEach(task => task.Start());
+            Task.WaitAll(tasks.ToArray());
+
+            return batchMse;
+        }
+
+        private double trainSample(int batchIdx, int sampleIdx, List<TrainingSample> trainingSamples)
+        {
+            double sampleMse = 0;
+
+            Network sampleNN = new Network(this);
+            int sampleIdxToTest = batchIdx * _batchSize + sampleIdx;
+            sampleMse = sampleNN.backPropagate(trainingSamples[sampleIdxToTest].inputs, trainingSamples[sampleIdxToTest].targets);
+            lock (this)
+            {
+                addToGradients(sampleNN); //idea: perhaps lock the this for this part?
+            }
+
+            return sampleMse;
+        }
+
+        private void addToGradients(Network sampleNN)
+        {
+            for (int layerIdx = 0; layerIdx < this.layers.Count; layerIdx++)
+            {
+                for (int neuronIdx = 0; neuronIdx < this.layers[layerIdx].Count; neuronIdx++)
+                {
+                    Neuron mainNeuron = this.layers[layerIdx][neuronIdx];
+                    Neuron sampleNeuron = sampleNN.layers[layerIdx][neuronIdx];
+                    for (int i = 0; i < mainNeuron.weightGradients.Length; i++)
+                        mainNeuron.weightGradients[i] += sampleNeuron.weightGradients[i];
+                    mainNeuron.biasGradient += sampleNeuron.biasGradient;
+                }
+            }
+        }
+        #endregion
+
+        #region Testing
+        public void testNetwork(string fileName)
+        {
+            StreamReader srTest = new StreamReader(File.OpenRead(fileName));
+            String line = srTest.ReadLine(); //skips first line
+
+            int successes = 0;
+            int total = 0;
+            while ((line = srTest.ReadLine()) != null)
+            {
+                String lineDuplicate = line;
+                String[] dividedString = lineDuplicate.Split(',');
+
+                //standardize inputs
+                double[] standardizedPixelValues = new double[784];
+                for (int i = 0; i < standardizedPixelValues.Length; i++)
+                    standardizedPixelValues[i] = double.Parse(dividedString[i + 1]) / 255.0;
+
+                //print output
+                Network sampleNN = new Network(this);
+                double[] output = sampleNN.forwardPropagate(standardizedPixelValues);
+                int label = int.Parse(dividedString[0]);
+                int val = output.ToList().IndexOf(output.Max());
+                if (val == label)
+                    successes++;
+                total++;
+            }
+
+            srTest.Close();
+            Console.WriteLine($"{successes}, {total}");
+            Console.WriteLine("Success Rate: " + ((double)successes / (double)total * 100d) + "%");
+        }
+        #endregion
     }
 }
