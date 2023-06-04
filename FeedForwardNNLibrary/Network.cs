@@ -139,7 +139,6 @@ namespace FeedForwardNNLibrary
         public void train(List<TrainingSample> trainingSamples, int numEpochs)
         {
             if (trainingSamples.Count == 0) { throw new Exception("You must have training samples!"); }
-            if (trainingSamples[0].targets.Length != layers[layers.Count - 1].Count) { throw new Exception("Your final layer must match number of targets!"); }
 
             for (int epoch = 0; epoch < numEpochs; epoch++)
             {
@@ -179,11 +178,11 @@ namespace FeedForwardNNLibrary
 
         private double trainSample(int batchIdx, int sampleIdx, List<TrainingSample> trainingSamples)
         {
-            double sampleMse = 0;
-
             Network sampleNN = new Network(this);
             int sampleIdxToTest = batchIdx * _batchSize + sampleIdx;
-            sampleMse = sampleNN.backPropagate(trainingSamples[sampleIdxToTest].inputs, trainingSamples[sampleIdxToTest].targets);
+
+            if (trainingSamples[sampleIdxToTest].targets.Length != layers[layers.Count - 1].Count) { throw new Exception("Your final layer must match number of targets!"); }
+            double sampleMse = sampleNN.backPropagate(trainingSamples[sampleIdxToTest].inputs, trainingSamples[sampleIdxToTest].targets);
             lock (this)
             {
                 addToGradients(sampleNN); //idea: perhaps lock the this for this part?
