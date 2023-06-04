@@ -5,6 +5,8 @@ VisualStudioVersion = 17.2.32630.192
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FeedForwardNNLibrary", "FeedForwardNNLibrary\FeedForwardNNLibrary.csproj", "{AB6EB8B6-B31C-4FE7-9220-C02C393A310E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestingFeedForwardNNLibrary", "TestingFeedForwardNNLibrary\TestingFeedForwardNNLibrary.csproj", "{940CB406-741B-4ECD-BCFC-93BB3E39EDCE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{AB6EB8B6-B31C-4FE7-9220-C02C393A310E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB6EB8B6-B31C-4FE7-9220-C02C393A310E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AB6EB8B6-B31C-4FE7-9220-C02C393A310E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{940CB406-741B-4ECD-BCFC-93BB3E39EDCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{940CB406-741B-4ECD-BCFC-93BB3E39EDCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{940CB406-741B-4ECD-BCFC-93BB3E39EDCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{940CB406-741B-4ECD-BCFC-93BB3E39EDCE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

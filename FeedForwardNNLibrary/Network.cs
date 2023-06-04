@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FeedForwardNNLibrary
 {
-    internal class Network
+    public class Network
     {
         internal static Random r = new Random();
         public readonly int _numInputs;
@@ -31,7 +31,7 @@ namespace FeedForwardNNLibrary
             layers.Add(layer);
         }
 
-        internal Network(Network original)
+        public Network(Network original)
         {
             for (int layerIdx = 0; layerIdx < original.layers.Count; layerIdx++)
             {
