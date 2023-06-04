@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using System.Windows.Forms;
 
-namespace TestingFeedForwardNNLibrary
+namespace MNIST
 {
     partial class Form1
     {
