@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{940CB406-741B-4ECD-BCFC-93BB3E39EDCE}</ProjectGuid>
+    <ProjectGuid>{C9366C3D-7AE5-4CCC-8D3C-2B24412FBF16}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>TestingFeedForwardNNLibrary</RootNamespace>
-    <AssemblyName>TestingFeedForwardNNLibrary</AssemblyName>
+    <RootNamespace>MNIST</RootNamespace>
+    <AssemblyName>MNIST</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TestingFeedForwardNNLibrary.Properties
+namespace MNIST.Properties
 {
 
 

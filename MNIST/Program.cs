@@ -18,7 +18,7 @@ namespace MNIST
         {
             //Application.EnableVisualStyles();
             //Application.SetCompatibleTextRenderingDefault(false);
-            
+
             // set up the network
             Network mainNN = new Network(784, 0.2, 0.02, 32);
             mainNN.AddLayer(100, ActivationFunctions.Tanh);
@@ -116,6 +116,6 @@ namespace MNIST
                 trainingSamples.Add(new TrainingSample(standardizedPixelValues, targets));
             }
         }
-        
+
     }
 }

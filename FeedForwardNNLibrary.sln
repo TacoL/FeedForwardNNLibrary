@@ -5,11 +5,11 @@ VisualStudioVersion = 17.2.32630.192
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FeedForwardNNLibrary", "FeedForwardNNLibrary\FeedForwardNNLibrary.csproj", "{AB6EB8B6-B31C-4FE7-9220-C02C393A310E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MNIST", "TestingFeedForwardNNLibrary\MNIST.csproj", "{940CB406-741B-4ECD-BCFC-93BB3E39EDCE}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Iris Flower", "Iris Flower\Iris Flower.csproj", "{87F622B8-881A-404D-973A-86E6D78441A6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XOR", "XOR\XOR.csproj", "{7A979C0C-5ECE-454A-B2CC-A4121BA55305}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MNIST", "MNIST\MNIST.csproj", "{C9366C3D-7AE5-4CCC-8D3C-2B24412FBF16}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,10 +21,6 @@ Global
 		{AB6EB8B6-B31C-4FE7-9220-C02C393A310E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB6EB8B6-B31C-4FE7-9220-C02C393A310E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AB6EB8B6-B31C-4FE7-9220-C02C393A310E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{940CB406-741B-4ECD-BCFC-93BB3E39EDCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{940CB406-741B-4ECD-BCFC-93BB3E39EDCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{940CB406-741B-4ECD-BCFC-93BB3E39EDCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{940CB406-741B-4ECD-BCFC-93BB3E39EDCE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{87F622B8-881A-404D-973A-86E6D78441A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{87F622B8-881A-404D-973A-86E6D78441A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{87F622B8-881A-404D-973A-86E6D78441A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -33,6 +29,10 @@ Global
 		{7A979C0C-5ECE-454A-B2CC-A4121BA55305}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7A979C0C-5ECE-454A-B2CC-A4121BA55305}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7A979C0C-5ECE-454A-B2CC-A4121BA55305}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9366C3D-7AE5-4CCC-8D3C-2B24412FBF16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9366C3D-7AE5-4CCC-8D3C-2B24412FBF16}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9366C3D-7AE5-4CCC-8D3C-2B24412FBF16}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9366C3D-7AE5-4CCC-8D3C-2B24412FBF16}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
