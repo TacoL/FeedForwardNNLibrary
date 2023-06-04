@@ -52,32 +52,30 @@ namespace FeedForwardNNLibrary
             layers.Add(layer);
         }
 
-        internal double[] forwardPropagateBeforeSoftmax(double[] inputs)
+        public double[] forwardPropagate(double[] inputs)
         {
             //First Layer Setup
             for (int i = 0; i < inputs.Length; i++)
                 layers[0][i].firstLayerSetup(inputs[i]);
-            //layers[0].Select((n, i) => (n, i)).ToList().ForEach(t => t.n.firstLayerSetup(inputs[t.i]));
 
             //Propagate Forward
             for (int layerIdx = 1; layerIdx < layers.Count; layerIdx++)
+            {
                 layers[layerIdx].ForEach(neuron => neuron.calcActivationValue(layers[layerIdx - 1]));
+
+                layers[layerIdx].ForEach(neuron => {
+                    if (neuron._activationFunction.activation == "Softmax")
+                        neuron.calcSoftmaxActivation(convertLayerToDoubles(layers[layerIdx]));
+                });
+            }
 
             //Convert from Neuron to Double
             return convertLayerToDoubles(layers[layers.Count - 1]);
         }
-        public double[] forwardPropagate(double[] inputs)
-        {
-            double[] outputsBeforeSoftmax = forwardPropagateBeforeSoftmax(inputs);
-
-            //Apply Softmax
-            return applySoftmax(outputsBeforeSoftmax);
-        }
 
         private double backPropagate(double[] inputs, double[] targets)
         {
-            double[] outputsBeforeSoftmax = forwardPropagateBeforeSoftmax(inputs);
-            double[] outputs = applySoftmax(outputsBeforeSoftmax); //after Softmax
+            double[] outputs = forwardPropagate(inputs);
             double[] cost = new double[targets.Length];
             double[] costGradient = new double[targets.Length]; //technically the activation gradient for the outer layer
 
@@ -97,7 +95,7 @@ namespace FeedForwardNNLibrary
                 {
                     Neuron neuron = layer[neuronIdx];
                     if (layerIdx == layers.Count - 1)
-                        neuron.neuronGradient = costGradient[neuronIdx] * softmaxDerivative(outputsBeforeSoftmax)[neuronIdx]; //reset neuron gradient for each sample
+                        neuron.neuronGradient = costGradient[neuronIdx] * neuron.derivativeActivation(neuron.neuronValue); //reset neuron gradient for each sample
                     else
                     {
                         //calculate activation gradient
@@ -129,28 +127,6 @@ namespace FeedForwardNNLibrary
                 neuronIdx++;
             });
 
-            return newArray;
-        }
-
-        internal double[] applySoftmax(double[] array)
-        {
-            double expSum = 0;
-            for (int i = 0; i < array.Length; i++)
-                expSum += Math.Exp(array[i]);
-
-            double[] newArray = new double[array.Length];
-            for (int i = 0; i < newArray.Length; i++)
-                newArray[i] = Math.Exp(array[i]) / expSum;
-
-            return newArray;
-        }
-
-        internal double[] softmaxDerivative(double[] array)
-        {
-            double[] softmaxArray = applySoftmax(array);
-            double[] newArray = new double[array.Length];
-            for (int i = 0; i < newArray.Length; i++)
-                newArray[i] = softmaxArray[i] * (1 - softmaxArray[i]);
             return newArray;
         }
 

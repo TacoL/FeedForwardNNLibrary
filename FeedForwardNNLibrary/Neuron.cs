@@ -10,12 +10,13 @@ namespace FeedForwardNNLibrary
     {
         internal double neuronValue, activationValue, bias, neuronGradient, biasGradient, previousBG;
         internal double[] weights, weightGradients, previousWG;
-        private ActivationFunctions _activationFunction;
+        internal ActivationFunctions _activationFunction;
         private double _learningRate, _momentumScalar;
         private int _batchSize;
 
         internal Neuron(int numInputs, ActivationFunctions activation, double learningRate, double momentumScalar, int batchSize)
         {
+            _activationFunction = activation;
             _learningRate = learningRate;
             _momentumScalar = momentumScalar;
             _batchSize = batchSize;
@@ -39,6 +40,11 @@ namespace FeedForwardNNLibrary
 
         internal Neuron(Neuron original)
         {
+            _activationFunction = original._activationFunction;
+            _learningRate = original._learningRate;
+            _momentumScalar = original._momentumScalar;
+            _batchSize = original._batchSize;
+
             neuronValue = 0;
             activationValue = 0;
             neuronGradient = 0;
@@ -63,40 +69,46 @@ namespace FeedForwardNNLibrary
                 neuronValue += inputNeurons[i].activationValue * weights[i];
             neuronValue += bias;
 
+            activationValue = activationFunction(neuronValue);
+        }
 
-            activationValue = output ? outputActivation(neuronValue) : activationFunction(neuronValue);
+        internal void calcSoftmaxActivation(double[] currentLayerNeuronValues)
+        {
+            double expSum = 0;
+            for (int i = 0; i < currentLayerNeuronValues.Length; i++)
+                expSum += Math.Exp(currentLayerNeuronValues[i]);
+
+            activationValue = Math.Exp(activationValue) / expSum;
         }
 
         internal double activationFunction(double x)
         {
-            return Math.Tanh(x);
-
-            //return Math.Tanh(x/125);
-
-            //return x <= 0 ? 0 : activationValue;
+            if (_activationFunction.activation == "Tanh")
+                return Math.Tanh(x);
+            else if (_activationFunction.activation == "ReLu")
+                return x <= 0 ? 0 : x;
+            else if (_activationFunction.activation == "None")
+                return x;
+            else if (_activationFunction.activation == "Softmax")
+                return x;
+            else
+                return 0;
         }
 
         internal double derivativeActivation(double x)
         {
-            return 1 - Math.Pow(Math.Tanh(x), 2);
-
-            //double secant = 2.0 / (Math.Exp(x/125) + Math.Exp(-x/125));
-            //return Math.Pow(secant, 2) / 125.0;
-
-            //return x <= 0 ? 0 : 1;
+            if (_activationFunction.activation == "Tanh")
+                return 1 - Math.Pow(Math.Tanh(x), 2);
+            else if (_activationFunction.activation == "ReLu")
+                return x <= 0 ? 0 : 1;
+            else if (_activationFunction.activation == "None")
+                return 0;
+            else if (_activationFunction.activation == "Softmax")
+                return activationValue * (1 - activationValue);
+            else
+                return 0;
         }
 
-        internal double outputActivation(double x)
-        {
-            //softmax
-            return x;
-        }
-
-        internal double derivativeOutputActivation(double x)
-        {
-            //for softmax, not used for an individual neuron
-            return x;
-        }
         internal void firstLayerSetup(double actV)
         {
             activationValue = actV;
