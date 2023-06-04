@@ -207,39 +207,5 @@ namespace FeedForwardNNLibrary
             }
         }
         #endregion
-
-        #region Testing
-        public void testNetwork(string fileName)
-        {
-            StreamReader srTest = new StreamReader(File.OpenRead(fileName));
-            String line = srTest.ReadLine(); //skips first line
-
-            int successes = 0;
-            int total = 0;
-            while ((line = srTest.ReadLine()) != null)
-            {
-                String lineDuplicate = line;
-                String[] dividedString = lineDuplicate.Split(',');
-
-                //standardize inputs
-                double[] standardizedPixelValues = new double[784];
-                for (int i = 0; i < standardizedPixelValues.Length; i++)
-                    standardizedPixelValues[i] = double.Parse(dividedString[i + 1]) / 255.0;
-
-                //print output
-                Network sampleNN = new Network(this);
-                double[] output = sampleNN.forwardPropagate(standardizedPixelValues);
-                int label = int.Parse(dividedString[0]);
-                int val = output.ToList().IndexOf(output.Max());
-                if (val == label)
-                    successes++;
-                total++;
-            }
-
-            srTest.Close();
-            Console.WriteLine($"{successes}, {total}");
-            Console.WriteLine("Success Rate: " + ((double)successes / (double)total * 100d) + "%");
-        }
-        #endregion
     }
 }
