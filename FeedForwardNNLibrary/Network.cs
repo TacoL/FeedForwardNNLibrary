@@ -222,6 +222,13 @@ namespace FeedForwardNNLibrary
             using (XmlWriter writer = XmlWriter.Create(filePath, settings))
             {
                 writer.WriteStartElement("network");
+
+                writer.WriteElementString("numInputs", _numInputs.ToString());
+                writer.WriteElementString("learningRate", _learningRate.ToString());
+                writer.WriteElementString("momentumScalar", _momentumScalar.ToString());
+                writer.WriteElementString("batchSize", _batchSize.ToString());
+
+                writer.WriteStartElement("layers");
                 for (int layerIdx = 1; layerIdx < layers.Count; layerIdx++)
                 {
                     writer.WriteStartElement("layer" + layerIdx.ToString());
@@ -245,6 +252,7 @@ namespace FeedForwardNNLibrary
                     writer.WriteEndElement(); // end layer[idx]
                 }
 
+                writer.WriteEndElement(); // end layers
                 writer.WriteEndElement(); // end network
                 writer.Close();
             }
