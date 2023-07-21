@@ -78,7 +78,7 @@ namespace Iris_Flower
 
             Network nn = new Network(4, .22, .12, samples.Count);
             nn.AddLayer(8, ActivationFunctions.Tanh);
-            nn.AddLayer(3, ActivationFunctions.Tanh);
+            nn.AddLayer(3, ActivationFunctions.Softmax);
             nn.train(samples, 5000);
 
             // Evaluate
@@ -103,6 +103,8 @@ namespace Iris_Flower
             }
 
             Console.WriteLine(numMatched + "/" + samples.Count);
+
+            nn.ExportModel(@"IrisFlowerModel.xml");
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

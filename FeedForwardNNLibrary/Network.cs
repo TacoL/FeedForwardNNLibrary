@@ -212,32 +212,56 @@ namespace FeedForwardNNLibrary
         /// <summary>
         /// Exports the neural network as an xml file
         /// </summary>
-        /// <param name="fileName">Name of the file to export to</param>
-        public void ExportModel(string fileName)
+        /// <param name="filePath">File path to export to</param>
+        public void ExportModel(string filePath)
         {
-            using (XmlWriter writer = XmlWriter.Create(fileName + ".xml"))
+            XmlWriterSettings settings = new XmlWriterSettings();
+            settings.Indent = true;
+            settings.IndentChars = "\t";
+
+            using (XmlWriter writer = XmlWriter.Create(filePath, settings))
             {
-                for (int layerIdx = 0; layerIdx < layers.Count; layerIdx++)
+                writer.WriteStartElement("network");
+                for (int layerIdx = 1; layerIdx < layers.Count; layerIdx++)
                 {
-                    writer.WriteStartElement(layerIdx.ToString());
+                    writer.WriteStartElement("layer" + layerIdx.ToString());
+                    writer.WriteElementString("ActivationFunction", layers[layerIdx][0]._activationFunction.activation);
+                    writer.WriteStartElement("neurons");
                     for (int neuronIdx = 0; neuronIdx < layers[layerIdx].Count; neuronIdx++)
                     {
-                        writer.WriteStartElement(neuronIdx.ToString());
+                        writer.WriteStartElement("neuron" + neuronIdx.ToString());
 
                         Neuron neuron = layers[layerIdx][neuronIdx];
                         writer.WriteStartElement("weights");
                         for (int weightIdx = 0; weightIdx < neuron.weights.Length; weightIdx++)
                         {
-                            writer.WriteElementString(weightIdx.ToString(), neuron.weights[weightIdx].ToString());
+                            writer.WriteElementString("weight" + weightIdx.ToString(), neuron.weights[weightIdx].ToString());
                         }
-                        writer.WriteEndElement();
+                        writer.WriteEndElement(); // end weights
                         writer.WriteElementString("bias", neuron.bias.ToString());
-
-                        writer.WriteEndElement();
+                        writer.WriteEndElement(); // end neuron[idx]
                     }
-                    writer.WriteEndElement();
+                    writer.WriteEndElement(); // end neurons
+                    writer.WriteEndElement(); // end layer[idx]
                 }
+
+                writer.WriteEndElement(); // end network
+                writer.Close();
             }
+        }
+
+        /// <summary>
+        /// Imports a model from a file path.
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        public static Network ImportModel(string filePath)
+        {
+            using XmlReader xmlReader = XmlReader.Create(filePath);
+
+            xmlReader.Read();
+
+            return new Network(0, 0, 0, 0);
         }
         #endregion
     }

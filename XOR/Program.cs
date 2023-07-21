@@ -36,6 +36,8 @@ namespace XOR
             Console.WriteLine(nn.forwardPropagate(new double[] { 1, 0 })[0]);
             Console.WriteLine(nn.forwardPropagate(new double[] { 1, 1 })[0]);
 
+            nn.ExportModel(@"XORModel.xml");
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
