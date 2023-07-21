@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace FeedForwardNNLibrary
 {
@@ -202,6 +203,39 @@ namespace FeedForwardNNLibrary
                     for (int i = 0; i < mainNeuron.weightGradients.Length; i++)
                         mainNeuron.weightGradients[i] += sampleNeuron.weightGradients[i];
                     mainNeuron.biasGradient += sampleNeuron.biasGradient;
+                }
+            }
+        }
+        #endregion
+
+        #region Export
+        /// <summary>
+        /// Exports the neural network as an xml file
+        /// </summary>
+        /// <param name="fileName">Name of the file to export to</param>
+        public void ExportModel(string fileName)
+        {
+            using (XmlWriter writer = XmlWriter.Create(fileName + ".xml"))
+            {
+                for (int layerIdx = 0; layerIdx < layers.Count; layerIdx++)
+                {
+                    writer.WriteStartElement(layerIdx.ToString());
+                    for (int neuronIdx = 0; neuronIdx < layers[layerIdx].Count; neuronIdx++)
+                    {
+                        writer.WriteStartElement(neuronIdx.ToString());
+
+                        Neuron neuron = layers[layerIdx][neuronIdx];
+                        writer.WriteStartElement("weights");
+                        for (int weightIdx = 0; weightIdx < neuron.weights.Length; weightIdx++)
+                        {
+                            writer.WriteElementString(weightIdx.ToString(), neuron.weights[weightIdx].ToString());
+                        }
+                        writer.WriteEndElement();
+                        writer.WriteElementString("bias", neuron.bias.ToString());
+
+                        writer.WriteEndElement();
+                    }
+                    writer.WriteEndElement();
                 }
             }
         }
