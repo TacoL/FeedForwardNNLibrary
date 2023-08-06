@@ -304,10 +304,6 @@ namespace FeedForwardNNLibrary
                         currentNeuron.weights[weightIdx] = reader.ReadElementContentAsDouble();
                     }
                 }
-                else if (reader.NodeType == XmlNodeType.EndElement)
-                {
-
-                }
             }
 
             if (network == null) { throw new Exception("Network doesn't exist"); }
