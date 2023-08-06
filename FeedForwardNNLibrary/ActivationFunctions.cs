@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FeedForwardNNLibrary
 {
@@ -22,10 +18,10 @@ namespace FeedForwardNNLibrary
 
             switch(str)
             {
-                case "Tanh": return ActivationFunctions.Tanh;
-                case "ReLu": return ActivationFunctions.ReLu;
-                case "Softmax": return ActivationFunctions.Softmax;
-                case "None": return ActivationFunctions.None;
+                case "Tanh": return Tanh;
+                case "ReLu": return ReLu;
+                case "Softmax": return Softmax;
+                case "None": return None;
                 default: throw new Exception("Not a valid activation function");
             }
         }
