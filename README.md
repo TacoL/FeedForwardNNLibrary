@@ -1,6 +1,6 @@
 # FeedForwardNNLibrary
 ## Description
-The folder "FeedForwardNNLibrary" is the actual library, and the other three folders are examples of implementation (which reference the library as a project reference)
+The folder "FeedForwardNNLibrary" is the actual library, and the other three (not Loaded) folders are examples of implementation (which reference the library as a project reference). The Iris Flower (Loaded) folder is an example of importing a previously exported model.
 ## Features
 ### Constructor & Methods
 - Creation of Network (parameters: number of inputs, learning rate, momentum scalar, batch size)
@@ -12,3 +12,6 @@ The folder "FeedForwardNNLibrary" is the actual library, and the other three fol
 - ReLu
 - Softmax
 - None
+### Export/Import Model
+- Export model to a .xml file path
+- Import model from a .xml file path
