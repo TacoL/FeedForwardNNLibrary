@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace FeedForwardNNLibrary
 {
@@ -204,6 +204,114 @@ namespace FeedForwardNNLibrary
                     mainNeuron.biasGradient += sampleNeuron.biasGradient;
                 }
             }
+        }
+        #endregion
+
+        #region Export
+        /// <summary>
+        /// Exports the neural network as an xml file
+        /// </summary>
+        /// <param name="filePath">File path to export to</param>
+        public void ExportModel(string filePath)
+        {
+            XmlWriterSettings settings = new XmlWriterSettings();
+            settings.Indent = true;
+            settings.IndentChars = "\t";
+
+            using XmlWriter writer = XmlWriter.Create(filePath, settings);
+            writer.WriteStartElement("network");
+
+            writer.WriteElementString("numInputs", _numInputs.ToString());
+            writer.WriteElementString("learningRate", _learningRate.ToString());
+            writer.WriteElementString("momentumScalar", _momentumScalar.ToString());
+            writer.WriteElementString("batchSize", _batchSize.ToString());
+
+            writer.WriteStartElement("layers");
+            for (int layerIdx = 1; layerIdx < layers.Count; layerIdx++)
+            {
+                writer.WriteStartElement("layer" + layerIdx.ToString());
+                writer.WriteElementString("NumNeurons", layers[layerIdx].Count.ToString());
+                writer.WriteElementString("ActivationFunction", layers[layerIdx][0]._activationFunction.activation);
+                writer.WriteStartElement("neurons");
+                for (int neuronIdx = 0; neuronIdx < layers[layerIdx].Count; neuronIdx++)
+                {
+                    writer.WriteStartElement("neuron" + neuronIdx.ToString());
+
+                    Neuron neuron = layers[layerIdx][neuronIdx];
+                    writer.WriteStartElement("weights");
+                    for (int weightIdx = 0; weightIdx < neuron.weights.Length; weightIdx++)
+                    {
+                        writer.WriteElementString("weight" + weightIdx.ToString(), neuron.weights[weightIdx].ToString());
+                    }
+                    writer.WriteEndElement(); // end weights
+                    writer.WriteElementString("bias", neuron.bias.ToString());
+                    writer.WriteEndElement(); // end neuron[idx]
+                }
+                writer.WriteEndElement(); // end neurons
+                writer.WriteEndElement(); // end layer[idx]
+            }
+
+            writer.WriteEndElement(); // end layers
+            writer.WriteEndElement(); // end network
+            writer.Close();
+        }
+
+        /// <summary>
+        /// Imports a model from a file path.
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        public static Network ImportModel(string filePath)
+        {
+
+            int numInputs = 0;
+            double learningRate = 0;
+            double momentumScalar = 0;
+            int batchSize = 0;
+            using XmlReader reader = XmlReader.Create(filePath);
+            Network? network = null;
+
+            int numNeurons = 0;
+            Neuron? currentNeuron = null;
+
+            while (reader.Read())
+            {
+                if (reader.NodeType == XmlNodeType.Element)
+                {
+                    switch (reader.Name)
+                    {
+                        case "numInputs": numInputs = reader.ReadElementContentAsInt(); break;
+                        case "learningRate": learningRate = reader.ReadElementContentAsDouble(); break;
+                        case "momentumScalar": momentumScalar = reader.ReadElementContentAsDouble(); break;
+                        case "batchSize":
+                            batchSize = reader.ReadElementContentAsInt();
+                            network = new Network(numInputs, learningRate, momentumScalar, batchSize);
+                            break;
+                        case "NumNeurons": numNeurons = reader.ReadElementContentAsInt(); break;
+                        case "ActivationFunction": network.AddLayer(numNeurons, ActivationFunctions.ConvertFromString(reader.ReadElementContentAsString())); break;
+                        case "bias": currentNeuron.bias = reader.ReadElementContentAsDouble(); break;
+                        default: break;
+                    }
+
+                    if (reader.Name.Contains("neuron") && reader.Name != "neurons")
+                    {
+                        int neuronIdx = int.Parse(reader.Name.Substring(6, 1));
+                        currentNeuron = network.layers[network.layers.Count - 1][neuronIdx];
+                    }
+                    else if (reader.Name.Contains("weight") && reader.Name != "weights")
+                    {
+                        int weightIdx = int.Parse(reader.Name.Substring(6, 1));
+                        currentNeuron.weights[weightIdx] = reader.ReadElementContentAsDouble();
+                    }
+                }
+                else if (reader.NodeType == XmlNodeType.EndElement)
+                {
+
+                }
+            }
+
+            if (network == null) { throw new Exception("Network doesn't exist"); }
+            return network;
         }
         #endregion
     }

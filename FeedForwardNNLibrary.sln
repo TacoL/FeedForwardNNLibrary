@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XOR", "XOR\XOR.csproj", "{7
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MNIST", "MNIST\MNIST.csproj", "{C9366C3D-7AE5-4CCC-8D3C-2B24412FBF16}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Iris Flower (Loaded)", "Iris Flower (Loaded)\Iris Flower (Loaded).csproj", "{47E5DC6B-6C8C-466B-BDF4-5B7FF0F396BD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{C9366C3D-7AE5-4CCC-8D3C-2B24412FBF16}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C9366C3D-7AE5-4CCC-8D3C-2B24412FBF16}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C9366C3D-7AE5-4CCC-8D3C-2B24412FBF16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47E5DC6B-6C8C-466B-BDF4-5B7FF0F396BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47E5DC6B-6C8C-466B-BDF4-5B7FF0F396BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47E5DC6B-6C8C-466B-BDF4-5B7FF0F396BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47E5DC6B-6C8C-466B-BDF4-5B7FF0F396BD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

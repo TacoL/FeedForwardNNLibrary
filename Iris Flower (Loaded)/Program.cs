@@ -1,12 +1,11 @@
-﻿using System;
+﻿using FeedForwardNNLibrary;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using FeedForwardNNLibrary;
 
-namespace Iris_Flower
+namespace Iris_Flower__Loaded_
 {
     internal static class Program
     {
@@ -76,10 +75,8 @@ namespace Iris_Flower
                 samples.ForEach(sample => sample.inputs[i] /= maxValue);
             }
 
-            Network nn = new Network(4, .22, .12, samples.Count);
-            nn.AddLayer(8, ActivationFunctions.Tanh);
-            nn.AddLayer(3, ActivationFunctions.Softmax);
-            nn.train(samples, 5000);
+            // Load Model
+            Network nn = Network.ImportModel(@"IrisFlowerModel.xml");
 
             // Evaluate
             int numMatched = 0;
@@ -103,8 +100,6 @@ namespace Iris_Flower
             }
 
             Console.WriteLine(numMatched + "/" + samples.Count);
-
-            nn.ExportModel(@"IrisFlowerModel.xml");
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
