@@ -50,7 +50,7 @@ namespace MNIST
             Console.WriteLine("Ready to train");
 
             // train network
-            mainNN.train(trainingSamples, numEpochs);
+            mainNN.Train(trainingSamples, numEpochs);
 
             // results
             testNetwork(mainNN, "mnist_train.csv");
@@ -77,7 +77,7 @@ namespace MNIST
                     standardizedPixelValues[i] = double.Parse(dividedString[i + 1]) / 255.0;
 
                 //print output
-                double[] output = mainNN.forwardPropagate(standardizedPixelValues);
+                double[] output = mainNN.ForwardPropagate(standardizedPixelValues);
                 int label = int.Parse(dividedString[0]);
                 int val = output.ToList().IndexOf(output.Max());
                 if (val == label)

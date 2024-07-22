@@ -86,7 +86,7 @@ namespace MNIST
                     idx++;
                 });
 
-                double[] output = neuralNet.forwardPropagate(inputs);
+                double[] output = neuralNet.ForwardPropagate(inputs);
                 label2.Text = "" + output.ToList().IndexOf(output.Max());
                 calculating = false;
             }

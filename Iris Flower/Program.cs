@@ -79,14 +79,14 @@ namespace Iris_Flower
             Network nn = new Network(4, .22, .12, samples.Count);
             nn.AddLayer(8, ActivationFunctions.Tanh);
             nn.AddLayer(3, ActivationFunctions.Softmax);
-            nn.train(samples, 5000);
+            nn.Train(samples, 5000);
 
             // Evaluate
             int numMatched = 0;
 
             for (int i = 0; i < samples.Count; i++)
             {
-                double[] outputs = nn.forwardPropagate(samples[i].inputs);
+                double[] outputs = nn.ForwardPropagate(samples[i].inputs);
 
                 int rowWithMaxValue = Array.IndexOf(outputs, outputs.Max());
 

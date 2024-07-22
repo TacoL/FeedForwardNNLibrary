@@ -8,14 +8,14 @@ namespace FeedForwardNNLibrary
 {
     public class Network
     {
-        internal static Random r = new Random();
-        public readonly int _numInputs;
+        internal readonly static Random r = new Random();
+        private readonly int _numInputs;
 
         private readonly double _learningRate;
         private readonly double _momentumScalar;
         private readonly int _batchSize;
 
-        private List<List<Neuron>> layers = new List<List<Neuron>>();
+        private readonly List<List<Neuron>> layers = new List<List<Neuron>>();
 
         public Network(int numInputs, double learningRate, double momentumScalar, int batchSize)
         {
@@ -52,7 +52,7 @@ namespace FeedForwardNNLibrary
             layers.Add(layer);
         }
 
-        public double[] forwardPropagate(double[] inputs)
+        public double[] ForwardPropagate(double[] inputs)
         {
             //First Layer Setup
             for (int i = 0; i < inputs.Length; i++)
@@ -65,17 +65,17 @@ namespace FeedForwardNNLibrary
 
                 layers[layerIdx].ForEach(neuron => {
                     if (neuron._activationFunction.activation == "Softmax")
-                        neuron.calcSoftmaxActivation(convertLayerToDoubles(layers[layerIdx]));
+                        neuron.calcSoftmaxActivation(ConvertLayerToDoubles(layers[layerIdx]));
                 });
             }
 
             //Convert from Neuron to Double
-            return convertLayerToDoubles(layers[layers.Count - 1]);
+            return ConvertLayerToDoubles(layers[layers.Count - 1]);
         }
 
-        private double backPropagate(double[] inputs, double[] targets)
+        private double BackPropagate(double[] inputs, double[] targets)
         {
-            double[] outputs = forwardPropagate(inputs);
+            double[] outputs = ForwardPropagate(inputs);
             double[] cost = new double[targets.Length];
             double[] costGradient = new double[targets.Length]; //technically the activation gradient for the outer layer
 
@@ -117,7 +117,7 @@ namespace FeedForwardNNLibrary
             return mse / cost.Length;
         }
 
-        private double[] convertLayerToDoubles(List<Neuron> layer)
+        private double[] ConvertLayerToDoubles(List<Neuron> layer)
         {
             double[] newArray = new double[layer.Count];
             int neuronIdx = 0;
@@ -130,13 +130,13 @@ namespace FeedForwardNNLibrary
             return newArray;
         }
 
-        private void updateWeightsAndBiases()
+        private void UpdateWeightsAndBiases()
         {
             layers.ForEach(layer => layer.ForEach(neuron => neuron.updateWeightsAndBias()));
         }
 
         #region Training
-        public void train(List<TrainingSample> trainingSamples, int numEpochs)
+        public void Train(List<TrainingSample> trainingSamples, int numEpochs)
         {
             if (trainingSamples.Count == 0) { throw new Exception("You must have training samples!"); }
 
@@ -148,10 +148,10 @@ namespace FeedForwardNNLibrary
                 //batching
                 for (int batchIdx = 0; batchIdx < numBatches; batchIdx++) //for each batch
                 {
-                    double batchMse = trainBatch(batchIdx, trainingSamples);
+                    double batchMse = TrainBatch(batchIdx, trainingSamples);
 
                     mse += batchMse / _batchSize;
-                    updateWeightsAndBiases();
+                    UpdateWeightsAndBiases();
                     //Console.WriteLine($"Epoch {epoch + 1} / {numEpochs}      Batch #{batchIdx + 1} / {numBatches}      BMSE = {batchMse / Network.batchSize}");
                 }
 
@@ -159,7 +159,7 @@ namespace FeedForwardNNLibrary
             }
         }
 
-        private double trainBatch(int batchIdx, List<TrainingSample> trainingSamples)
+        private double TrainBatch(int batchIdx, List<TrainingSample> trainingSamples)
         {
             double batchMse = 0;
 
@@ -167,7 +167,7 @@ namespace FeedForwardNNLibrary
             for (int sampleIdx = 0; sampleIdx < _batchSize; sampleIdx++)
             {
                 int thisSampleIdx = sampleIdx; // makes it work with Tasks
-                tasks.Add(new Task(() => batchMse += trainSample(batchIdx, thisSampleIdx, trainingSamples)));
+                tasks.Add(new Task(() => batchMse += TrainSample(batchIdx, thisSampleIdx, trainingSamples)));
             }
 
             tasks.ForEach(task => task.Start());
@@ -176,22 +176,22 @@ namespace FeedForwardNNLibrary
             return batchMse;
         }
 
-        private double trainSample(int batchIdx, int sampleIdx, List<TrainingSample> trainingSamples)
+        private double TrainSample(int batchIdx, int sampleIdx, List<TrainingSample> trainingSamples)
         {
             Network sampleNN = new Network(this);
             int sampleIdxToTest = batchIdx * _batchSize + sampleIdx;
 
             if (trainingSamples[sampleIdxToTest].targets.Length != layers[layers.Count - 1].Count) { throw new Exception("Your final layer must match number of targets!"); }
-            double sampleMse = sampleNN.backPropagate(trainingSamples[sampleIdxToTest].inputs, trainingSamples[sampleIdxToTest].targets);
+            double sampleMse = sampleNN.BackPropagate(trainingSamples[sampleIdxToTest].inputs, trainingSamples[sampleIdxToTest].targets);
             lock (this)
             {
-                addToGradients(sampleNN); //idea: perhaps lock the this for this part?
+                AddToGradients(sampleNN); //idea: perhaps lock the this for this part?
             }
 
             return sampleMse;
         }
 
-        private void addToGradients(Network sampleNN)
+        private void AddToGradients(Network sampleNN)
         {
             for (int layerIdx = 0; layerIdx < this.layers.Count; layerIdx++)
             {
