@@ -50,7 +50,7 @@ namespace MNIST
             Console.WriteLine("Ready to train");
 
             // train network
-            mainNN.Train(trainingSamples, numEpochs);
+            mainNN.Train(trainingSamples, numEpochs).Wait();
 
             // results
             testNetwork(mainNN, "mnist_train.csv");

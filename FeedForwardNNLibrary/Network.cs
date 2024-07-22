@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 
@@ -10,6 +11,7 @@ namespace FeedForwardNNLibrary
     {
         internal readonly static Random r = new Random();
         private readonly int _numInputs;
+        private readonly SemaphoreSlim _semaphore = new(1, 1);
 
         private readonly double _learningRate;
         private readonly double _momentumScalar;
@@ -136,7 +138,7 @@ namespace FeedForwardNNLibrary
         }
 
         #region Training
-        public void Train(List<TrainingSample> trainingSamples, int numEpochs)
+        public async Task Train(List<TrainingSample> trainingSamples, int numEpochs)
         {
             if (trainingSamples.Count == 0) { throw new Exception("You must have training samples!"); }
 
@@ -148,7 +150,7 @@ namespace FeedForwardNNLibrary
                 //batching
                 for (int batchIdx = 0; batchIdx < numBatches; batchIdx++) //for each batch
                 {
-                    double batchMse = TrainBatch(batchIdx, trainingSamples);
+                    double batchMse = await TrainBatch(batchIdx, trainingSamples);
 
                     mse += batchMse / _batchSize;
                     UpdateWeightsAndBiases();
@@ -159,36 +161,38 @@ namespace FeedForwardNNLibrary
             }
         }
 
-        private double TrainBatch(int batchIdx, List<TrainingSample> trainingSamples)
+        private async Task<double> TrainBatch(int batchIdx, List<TrainingSample> trainingSamples)
         {
             double batchMse = 0;
+            List<Task<double>> tasks = new List<Task<double>>();
 
-            List<Task> tasks = new List<Task>();
             for (int sampleIdx = 0; sampleIdx < _batchSize; sampleIdx++)
             {
-                int thisSampleIdx = sampleIdx; // makes it work with Tasks
-                tasks.Add(new Task(() => batchMse += TrainSample(batchIdx, thisSampleIdx, trainingSamples)));
+                Task<double> trainSample = TrainSample(batchIdx, sampleIdx, trainingSamples);
+                tasks.Add(trainSample);
             }
 
-            tasks.ForEach(task => task.Start());
-            Task.WaitAll(tasks.ToArray());
-
+            await Task.WhenAll(tasks);
+            tasks.ForEach(task => batchMse += task.Result);
             return batchMse;
         }
 
-        private double TrainSample(int batchIdx, int sampleIdx, List<TrainingSample> trainingSamples)
+        private Task<double> TrainSample(int batchIdx, int sampleIdx, List<TrainingSample> trainingSamples)
         {
-            Network sampleNN = new Network(this);
             int sampleIdxToTest = batchIdx * _batchSize + sampleIdx;
-
-            if (trainingSamples[sampleIdxToTest].targets.Length != layers[layers.Count - 1].Count) { throw new Exception("Your final layer must match number of targets!"); }
-            double sampleMse = sampleNN.BackPropagate(trainingSamples[sampleIdxToTest].inputs, trainingSamples[sampleIdxToTest].targets);
-            lock (this)
+            if (trainingSamples[sampleIdxToTest].targets.Length != layers[layers.Count - 1].Count)
             {
-                AddToGradients(sampleNN); //idea: perhaps lock the this for this part?
+                throw new Exception("Your final layer must match number of targets!");
             }
 
-            return sampleMse;
+            Network sampleNN = new Network(this);
+            double sampleMse = sampleNN.BackPropagate(trainingSamples[sampleIdxToTest].inputs, trainingSamples[sampleIdxToTest].targets);
+
+            _semaphore.Wait();
+            AddToGradients(sampleNN);
+            _semaphore.Release();
+
+            return Task.FromResult(sampleMse);
         }
 
         private void AddToGradients(Network sampleNN)
@@ -199,8 +203,12 @@ namespace FeedForwardNNLibrary
                 {
                     Neuron mainNeuron = this.layers[layerIdx][neuronIdx];
                     Neuron sampleNeuron = sampleNN.layers[layerIdx][neuronIdx];
+
                     for (int i = 0; i < mainNeuron.weightGradients.Length; i++)
+                    {
                         mainNeuron.weightGradients[i] += sampleNeuron.weightGradients[i];
+                    }
+
                     mainNeuron.biasGradient += sampleNeuron.biasGradient;
                 }
             }

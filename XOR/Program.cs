@@ -28,7 +28,7 @@ namespace XOR
             trainingSamples.Add(new TrainingSample(new double[] { 1, 1 }, new double[] { 0 }));
 
             //train network
-            nn.Train(trainingSamples, 100000);
+            nn.Train(trainingSamples, 100000).Wait();
 
             //results
             Console.WriteLine(nn.ForwardPropagate(new double[] { 0, 0 })[0]);

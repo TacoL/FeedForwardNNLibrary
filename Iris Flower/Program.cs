@@ -79,7 +79,7 @@ namespace Iris_Flower
             Network nn = new Network(4, .22, .12, samples.Count);
             nn.AddLayer(8, ActivationFunctions.Tanh);
             nn.AddLayer(3, ActivationFunctions.Softmax);
-            nn.Train(samples, 5000);
+            nn.Train(samples, 5000).Wait();
 
             // Evaluate
             int numMatched = 0;
