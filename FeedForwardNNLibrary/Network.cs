@@ -63,7 +63,8 @@ namespace FeedForwardNNLibrary
             {
                 layers[layerIdx].ForEach(neuron => neuron.CalcActivationValue(layers[layerIdx - 1]));
 
-                layers[layerIdx].ForEach(neuron => {
+                layers[layerIdx].ForEach(neuron =>
+                {
                     if (neuron.ActivationFunction.Activation == "Softmax")
                         neuron.CalcSoftmaxActivation(ConvertLayerToDoubles(layers[layerIdx]));
                 });
@@ -183,7 +184,6 @@ namespace FeedForwardNNLibrary
             double sampleMse = sampleNN.BackPropagate(trainingSamples[sampleIdxToTest].inputs, trainingSamples[sampleIdxToTest].targets);
 
             AddToGradients(sampleNN);
-
             return sampleMse;
         }
 

@@ -125,7 +125,7 @@ namespace FeedForwardNNLibrary
                 Weights[weightIdx] -= (WeightGradients[weightIdx] / _batchSize * _learningRate) + (_previousWeightGradient[weightIdx] * _momentumScalar);
                 _previousWeightGradient[weightIdx] = WeightGradients[weightIdx] / _batchSize;
             }
-                
+
             Bias -= (BiasGradient / _batchSize * _learningRate) + (_previousBiasGradient * _momentumScalar);
             _previousBiasGradient = BiasGradient / _batchSize;
 
