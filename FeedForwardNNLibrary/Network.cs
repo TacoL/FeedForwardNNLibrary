@@ -271,16 +271,14 @@ namespace FeedForwardNNLibrary
         /// <returns></returns>
         public static Network ImportModel(string filePath)
         {
+            using XmlReader reader = XmlReader.Create(filePath);
 
             int numInputs = 0;
             double learningRate = 0;
             double momentumScalar = 0;
-            int batchSize = 0;
-            using XmlReader reader = XmlReader.Create(filePath);
-            Network? network = null;
-
             int numNeurons = 0;
-            Neuron? currentNeuron = null;
+            Network network = new Network(0, 0, 0, 0);
+            Neuron currentNeuron = new Neuron(0, ActivationFunctions.None, 0, 0, 0);
 
             while (reader.Read())
             {
@@ -292,7 +290,7 @@ namespace FeedForwardNNLibrary
                         case "learningRate": learningRate = reader.ReadElementContentAsDouble(); break;
                         case "momentumScalar": momentumScalar = reader.ReadElementContentAsDouble(); break;
                         case "batchSize":
-                            batchSize = reader.ReadElementContentAsInt();
+                            int batchSize = reader.ReadElementContentAsInt();
                             network = new Network(numInputs, learningRate, momentumScalar, batchSize);
                             break;
                         case "NumNeurons": numNeurons = reader.ReadElementContentAsInt(); break;
