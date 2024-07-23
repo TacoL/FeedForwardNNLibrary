@@ -58,16 +58,16 @@ namespace FeedForwardNNLibrary
         {
             //First Layer Setup
             for (int i = 0; i < inputs.Length; i++)
-                layers[0][i].firstLayerSetup(inputs[i]);
+                layers[0][i].ActivationValue = inputs[i];
 
             //Propagate Forward
             for (int layerIdx = 1; layerIdx < layers.Count; layerIdx++)
             {
-                layers[layerIdx].ForEach(neuron => neuron.calcActivationValue(layers[layerIdx - 1]));
+                layers[layerIdx].ForEach(neuron => neuron.CalcActivationValue(layers[layerIdx - 1]));
 
                 layers[layerIdx].ForEach(neuron => {
-                    if (neuron._activationFunction.activation == "Softmax")
-                        neuron.calcSoftmaxActivation(ConvertLayerToDoubles(layers[layerIdx]));
+                    if (neuron.ActivationFunction.activation == "Softmax")
+                        neuron.CalcSoftmaxActivation(ConvertLayerToDoubles(layers[layerIdx]));
                 });
             }
 
@@ -97,19 +97,19 @@ namespace FeedForwardNNLibrary
                 {
                     Neuron neuron = layer[neuronIdx];
                     if (layerIdx == layers.Count - 1)
-                        neuron.neuronGradient = costGradient[neuronIdx] * neuron.derivativeActivation(neuron.neuronValue); //reset neuron gradient for each sample
+                        neuron.NeuronGradient = costGradient[neuronIdx] * neuron.DerivativeActivation(neuron.NeuronValue); //reset neuron gradient for each sample
                     else
                     {
                         //calculate activation gradient
                         double activationGradient = 0;
-                        layers[layerIdx + 1].ForEach(frontNeuron => activationGradient += frontNeuron.neuronGradient * frontNeuron.weights[neuronIdx]);
+                        layers[layerIdx + 1].ForEach(frontNeuron => activationGradient += frontNeuron.NeuronGradient * frontNeuron.Weights[neuronIdx]);
 
-                        neuron.neuronGradient = activationGradient * neuron.derivativeActivation(neuron.neuronValue);
+                        neuron.NeuronGradient = activationGradient * neuron.DerivativeActivation(neuron.NeuronValue);
                     }
 
-                    neuron.biasGradient += neuron.neuronGradient;
-                    for (int weightIdx = 0; weightIdx < neuron.weights.Length; weightIdx++)
-                        neuron.weightGradients[weightIdx] += neuron.neuronGradient * previousLayer[weightIdx].activationValue;
+                    neuron.BiasGradient += neuron.NeuronGradient;
+                    for (int weightIdx = 0; weightIdx < neuron.Weights.Length; weightIdx++)
+                        neuron.WeightGradients[weightIdx] += neuron.NeuronGradient * previousLayer[weightIdx].ActivationValue;
                 }
             }
 
@@ -125,7 +125,7 @@ namespace FeedForwardNNLibrary
             int neuronIdx = 0;
             layer.ForEach(neuron =>
             {
-                newArray[neuronIdx] = neuron.activationValue;
+                newArray[neuronIdx] = neuron.ActivationValue;
                 neuronIdx++;
             });
 
@@ -134,7 +134,7 @@ namespace FeedForwardNNLibrary
 
         private void UpdateWeightsAndBiases()
         {
-            layers.ForEach(layer => layer.ForEach(neuron => neuron.updateWeightsAndBias()));
+            layers.ForEach(layer => layer.ForEach(neuron => neuron.UpdateWeightsAndBias()));
         }
 
         #region Training
@@ -204,12 +204,12 @@ namespace FeedForwardNNLibrary
                     Neuron mainNeuron = this.layers[layerIdx][neuronIdx];
                     Neuron sampleNeuron = sampleNN.layers[layerIdx][neuronIdx];
 
-                    for (int i = 0; i < mainNeuron.weightGradients.Length; i++)
+                    for (int i = 0; i < mainNeuron.WeightGradients.Length; i++)
                     {
-                        mainNeuron.weightGradients[i] += sampleNeuron.weightGradients[i];
+                        mainNeuron.WeightGradients[i] += sampleNeuron.WeightGradients[i];
                     }
 
-                    mainNeuron.biasGradient += sampleNeuron.biasGradient;
+                    mainNeuron.BiasGradient += sampleNeuron.BiasGradient;
                 }
             }
         }
@@ -239,7 +239,7 @@ namespace FeedForwardNNLibrary
             {
                 writer.WriteStartElement("layer" + layerIdx.ToString());
                 writer.WriteElementString("NumNeurons", layers[layerIdx].Count.ToString());
-                writer.WriteElementString("ActivationFunction", layers[layerIdx][0]._activationFunction.activation);
+                writer.WriteElementString("ActivationFunction", layers[layerIdx][0].ActivationFunction.activation);
                 writer.WriteStartElement("neurons");
                 for (int neuronIdx = 0; neuronIdx < layers[layerIdx].Count; neuronIdx++)
                 {
@@ -247,12 +247,12 @@ namespace FeedForwardNNLibrary
 
                     Neuron neuron = layers[layerIdx][neuronIdx];
                     writer.WriteStartElement("weights");
-                    for (int weightIdx = 0; weightIdx < neuron.weights.Length; weightIdx++)
+                    for (int weightIdx = 0; weightIdx < neuron.Weights.Length; weightIdx++)
                     {
-                        writer.WriteElementString("weight" + weightIdx.ToString(), neuron.weights[weightIdx].ToString());
+                        writer.WriteElementString("weight" + weightIdx.ToString(), neuron.Weights[weightIdx].ToString());
                     }
                     writer.WriteEndElement(); // end weights
-                    writer.WriteElementString("bias", neuron.bias.ToString());
+                    writer.WriteElementString("bias", neuron.Bias.ToString());
                     writer.WriteEndElement(); // end neuron[idx]
                 }
                 writer.WriteEndElement(); // end neurons
@@ -297,7 +297,7 @@ namespace FeedForwardNNLibrary
                             break;
                         case "NumNeurons": numNeurons = reader.ReadElementContentAsInt(); break;
                         case "ActivationFunction": network.AddLayer(numNeurons, ActivationFunctions.ConvertFromString(reader.ReadElementContentAsString())); break;
-                        case "bias": currentNeuron.bias = reader.ReadElementContentAsDouble(); break;
+                        case "bias": currentNeuron.Bias = reader.ReadElementContentAsDouble(); break;
                         default: break;
                     }
 
@@ -309,7 +309,7 @@ namespace FeedForwardNNLibrary
                     else if (reader.Name.Contains("weight") && reader.Name != "weights")
                     {
                         int weightIdx = int.Parse(reader.Name.Substring(6, 1));
-                        currentNeuron.weights[weightIdx] = reader.ReadElementContentAsDouble();
+                        currentNeuron.Weights[weightIdx] = reader.ReadElementContentAsDouble();
                     }
                 }
             }

@@ -5,129 +5,135 @@ namespace FeedForwardNNLibrary
 {
     internal class Neuron
     {
-        internal double neuronValue, activationValue, bias, neuronGradient, biasGradient, previousBG;
-        internal double[] weights, weightGradients, previousWG;
-        internal ActivationFunctions _activationFunction;
-        private double _learningRate, _momentumScalar;
-        private int _batchSize;
+        #region Properties
+        internal double NeuronValue { get; set; }
+        internal double NeuronGradient { get; set; }
+        internal double[] Weights { get; set; }
+        internal double[] WeightGradients { get; set; }
+        internal double Bias { get; set; }
+        internal double BiasGradient { get; set; }
+        internal double ActivationValue { get; set; }
+        internal ActivationFunctions ActivationFunction { get; set; }
+        #endregion
+
+        private double _previousBiasGradient;
+        private double[] _previousWeightGradient;
+
+        private readonly double _learningRate, _momentumScalar;
+        private readonly int _batchSize;
 
         internal Neuron(int numInputs, ActivationFunctions activation, double learningRate, double momentumScalar, int batchSize)
         {
-            _activationFunction = activation;
+            ActivationFunction = activation;
             _learningRate = learningRate;
             _momentumScalar = momentumScalar;
             _batchSize = batchSize;
 
-            neuronValue = 0;
-            activationValue = 0;
-            neuronGradient = 0;
+            NeuronValue = 0;
+            ActivationValue = 0;
+            NeuronGradient = 0;
 
-            weights = new double[numInputs];
-            weightGradients = new double[numInputs];
-            previousWG = new double[numInputs];
+            Weights = new double[numInputs];
+            WeightGradients = new double[numInputs];
+            _previousWeightGradient = new double[numInputs];
 
             double y = 1 / Math.Sqrt(numInputs);
-            for (int weightIdx = 0; weightIdx < weights.Length; weightIdx++)
-                weights[weightIdx] = Network.r.NextDouble() * y * (Network.r.NextDouble() > .5 ? 1 : -1);
+            for (int weightIdx = 0; weightIdx < Weights.Length; weightIdx++)
+                Weights[weightIdx] = Network.r.NextDouble() * y * (Network.r.NextDouble() > .5 ? 1 : -1);
 
-            bias = 0;
-            biasGradient = 0;
-            previousBG = 0;
+            Bias = 0;
+            BiasGradient = 0;
+            _previousBiasGradient = 0;
         }
 
         internal Neuron(Neuron original)
         {
-            _activationFunction = original._activationFunction;
+            ActivationFunction = original.ActivationFunction;
             _learningRate = original._learningRate;
             _momentumScalar = original._momentumScalar;
             _batchSize = original._batchSize;
 
-            neuronValue = 0;
-            activationValue = 0;
-            neuronGradient = 0;
+            NeuronValue = 0;
+            ActivationValue = 0;
+            NeuronGradient = 0;
 
-            weights = new double[original.weights.Length];
-            weightGradients = new double[original.weightGradients.Length];
-            previousWG = new double[original.previousWG.Length];
+            Weights = new double[original.Weights.Length];
+            WeightGradients = new double[original.WeightGradients.Length];
+            _previousWeightGradient = new double[original._previousWeightGradient.Length];
 
-            for (int weightIdx = 0; weightIdx < weights.Length; weightIdx++)
-                weights[weightIdx] = original.weights[weightIdx];
+            for (int weightIdx = 0; weightIdx < Weights.Length; weightIdx++)
+                Weights[weightIdx] = original.Weights[weightIdx];
 
-            bias = original.bias;
-            biasGradient = 0;
-            previousBG = 0;
+            Bias = original.Bias;
+            BiasGradient = 0;
+            _previousBiasGradient = 0;
         }
 
-        internal void calcActivationValue(List<Neuron> inputNeurons)
+        internal void CalcActivationValue(List<Neuron> inputNeurons)
         {
-            neuronValue = 0; //reset neuron value every time
+            NeuronValue = 0; //reset neuron value every time
 
             for (int i = 0; i < inputNeurons.Count; i++)
-                neuronValue += inputNeurons[i].activationValue * weights[i];
-            neuronValue += bias;
+                NeuronValue += inputNeurons[i].ActivationValue * Weights[i];
+            NeuronValue += Bias;
 
-            activationValue = activationFunction(neuronValue);
+            ActivationValue = CalcActivationFunction(NeuronValue);
         }
 
-        internal void calcSoftmaxActivation(double[] currentLayerNeuronValues)
+        internal void CalcSoftmaxActivation(double[] currentLayerNeuronValues)
         {
             double expSum = 0;
             for (int i = 0; i < currentLayerNeuronValues.Length; i++)
                 expSum += Math.Exp(currentLayerNeuronValues[i]);
 
-            activationValue = Math.Exp(activationValue) / expSum;
+            ActivationValue = Math.Exp(ActivationValue) / expSum;
         }
 
-        internal double activationFunction(double x)
+        private double CalcActivationFunction(double x)
         {
-            if (_activationFunction.activation == "Tanh")
+            if (ActivationFunction.activation == "Tanh")
                 return Math.Tanh(x);
-            else if (_activationFunction.activation == "ReLu")
+            else if (ActivationFunction.activation == "ReLu")
                 return x <= 0 ? 0 : x;
-            else if (_activationFunction.activation == "None")
+            else if (ActivationFunction.activation == "None")
                 return x;
-            else if (_activationFunction.activation == "Softmax")
+            else if (ActivationFunction.activation == "Softmax")
                 return x;
             else
                 return 0;
         }
 
-        internal double derivativeActivation(double x)
+        internal double DerivativeActivation(double x)
         {
-            if (_activationFunction.activation == "Tanh")
+            if (ActivationFunction.activation == "Tanh")
                 return 1 - Math.Pow(Math.Tanh(x), 2);
-            else if (_activationFunction.activation == "ReLu")
+            else if (ActivationFunction.activation == "ReLu")
                 return x <= 0 ? 0 : 1;
-            else if (_activationFunction.activation == "None")
+            else if (ActivationFunction.activation == "None")
                 return 0;
-            else if (_activationFunction.activation == "Softmax")
-                return activationValue * (1 - activationValue);
+            else if (ActivationFunction.activation == "Softmax")
+                return ActivationValue * (1 - ActivationValue);
             else
                 return 0;
         }
 
-        internal void firstLayerSetup(double actV)
-        {
-            activationValue = actV;
-        }
-
-        internal void updateWeightsAndBias()
+        internal void UpdateWeightsAndBias()
         {
             //update weights and biases
-            for (int weightIdx = 0; weightIdx < weights.Length; weightIdx++)
+            for (int weightIdx = 0; weightIdx < Weights.Length; weightIdx++)
             {
-                weights[weightIdx] -= (weightGradients[weightIdx] / _batchSize * _learningRate) + (previousWG[weightIdx] * _momentumScalar);
-                previousWG[weightIdx] = weightGradients[weightIdx] / _batchSize;
+                Weights[weightIdx] -= (WeightGradients[weightIdx] / _batchSize * _learningRate) + (_previousWeightGradient[weightIdx] * _momentumScalar);
+                _previousWeightGradient[weightIdx] = WeightGradients[weightIdx] / _batchSize;
             }
                 
-            bias -= (biasGradient / _batchSize * _learningRate) + (previousBG * _momentumScalar);
-            previousBG = biasGradient / _batchSize;
+            Bias -= (BiasGradient / _batchSize * _learningRate) + (_previousBiasGradient * _momentumScalar);
+            _previousBiasGradient = BiasGradient / _batchSize;
 
             //reset neuron and weight and bias GRADIENTS after each update (update every batch)
-            neuronGradient = 0;
-            for (int wgIdx = 0; wgIdx < weightGradients.Length; wgIdx++)
-                weightGradients[wgIdx] = 0;
-            biasGradient = 0;
+            NeuronGradient = 0;
+            for (int wgIdx = 0; wgIdx < WeightGradients.Length; wgIdx++)
+                WeightGradients[wgIdx] = 0;
+            BiasGradient = 0;
         }
     }
 }
