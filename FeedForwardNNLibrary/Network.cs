@@ -132,11 +132,6 @@ namespace FeedForwardNNLibrary
             return newArray;
         }
 
-        private void UpdateWeightsAndBiases()
-        {
-            layers.ForEach(layer => layer.ForEach(neuron => neuron.UpdateWeightsAndBias()));
-        }
-
         #region Training
         public async Task Train(List<TrainingSample> trainingSamples, int numEpochs)
         {
@@ -151,9 +146,11 @@ namespace FeedForwardNNLibrary
                 for (int batchIdx = 0; batchIdx < numBatches; batchIdx++) //for each batch
                 {
                     double batchMse = await TrainBatch(batchIdx, trainingSamples);
-
                     mse += batchMse / _batchSize;
-                    UpdateWeightsAndBiases();
+
+                    // Update weights and biases
+                    layers.ForEach(layer => layer.ForEach(neuron => neuron.UpdateWeightsAndBias()));
+
                     //Console.WriteLine($"Epoch {epoch + 1} / {numEpochs}      Batch #{batchIdx + 1} / {numBatches}      BMSE = {batchMse / Network.batchSize}");
                 }
 
