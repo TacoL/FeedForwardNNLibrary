@@ -91,13 +91,13 @@ namespace FeedForwardNNLibrary
 
         private double CalcActivationFunction(double x)
         {
-            if (ActivationFunction.activation == "Tanh")
+            if (ActivationFunction.Activation == "Tanh")
                 return Math.Tanh(x);
-            else if (ActivationFunction.activation == "ReLu")
+            else if (ActivationFunction.Activation == "ReLu")
                 return x <= 0 ? 0 : x;
-            else if (ActivationFunction.activation == "None")
+            else if (ActivationFunction.Activation == "None")
                 return x;
-            else if (ActivationFunction.activation == "Softmax")
+            else if (ActivationFunction.Activation == "Softmax")
                 return x;
             else
                 return 0;
@@ -105,13 +105,13 @@ namespace FeedForwardNNLibrary
 
         internal double DerivativeActivation(double x)
         {
-            if (ActivationFunction.activation == "Tanh")
+            if (ActivationFunction.Activation == "Tanh")
                 return 1 - Math.Pow(Math.Tanh(x), 2);
-            else if (ActivationFunction.activation == "ReLu")
+            else if (ActivationFunction.Activation == "ReLu")
                 return x <= 0 ? 0 : 1;
-            else if (ActivationFunction.activation == "None")
+            else if (ActivationFunction.Activation == "None")
                 return 0;
-            else if (ActivationFunction.activation == "Softmax")
+            else if (ActivationFunction.Activation == "Softmax")
                 return ActivationValue * (1 - ActivationValue);
             else
                 return 0;

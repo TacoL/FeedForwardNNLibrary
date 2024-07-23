@@ -4,9 +4,12 @@ namespace FeedForwardNNLibrary
 {
     public class ActivationFunctions
     {
-        private ActivationFunctions(string activation) { this.activation = activation; }
-        internal string activation;
+        internal string Activation { get; private set; }
 
+        // Constructor
+        private ActivationFunctions(string activation) { this.Activation = activation; }
+        
+        // Activation Functions
         public static ActivationFunctions Tanh { get; private set; } = new ActivationFunctions("Tanh");
         public static ActivationFunctions ReLu { get; private set; } = new ActivationFunctions("ReLu");
         public static ActivationFunctions Softmax { get; private set; } = new ActivationFunctions("Softmax");
