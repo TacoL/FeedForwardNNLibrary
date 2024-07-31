@@ -37,13 +37,11 @@ namespace MNIST
             while ((line = sr.ReadLine()) != null)
             {
                 String lineDuplicate = line;
-                Task t = new Task(() => createSample(lineDuplicate, trainingSamples));
-                samplesToAdd.Add(t);
+                samplesToAdd.Add(Task.Run(() => createSample(lineDuplicate, trainingSamples)));
                 Console.WriteLine($"Sample: {setupIdx}");
                 setupIdx++;
             }
 
-            samplesToAdd.ForEach(task => task.Start());
             Task.WaitAll(samplesToAdd.ToArray());
 
             sr.Close();
