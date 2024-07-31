@@ -9,12 +9,11 @@ namespace FeedForwardNNLibrary
     public class Network
     {
         internal readonly static Random r = new Random();
-        private readonly int _numInputs;
 
+        private readonly int _numInputs;
         private readonly double _learningRate;
         private readonly double _momentumScalar;
         private readonly int _batchSize;
-
         private readonly List<List<Neuron>> layers = new List<List<Neuron>>();
 
         public Network(int numInputs, double learningRate, double momentumScalar, int batchSize)

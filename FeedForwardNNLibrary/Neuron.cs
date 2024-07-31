@@ -5,22 +5,21 @@ namespace FeedForwardNNLibrary
 {
     internal class Neuron
     {
-        #region Properties
-        internal double NeuronValue { get; set; }
-        internal double NeuronGradient { get; set; }
-        internal double[] Weights { get; set; }
-        internal double[] WeightGradients { get; set; }
-        internal double Bias { get; set; }
-        internal double BiasGradient { get; set; }
-        internal double ActivationValue { get; set; }
-        internal ActivationFunctions ActivationFunction { get; set; }
-        #endregion
+        #region Fields
+        internal double NeuronValue;
+        internal double NeuronGradient;
+        internal double[] Weights;
+        internal double[] WeightGradients;
+        internal double Bias;
+        internal double BiasGradient;
+        internal double ActivationValue;
+        internal ActivationFunctions ActivationFunction;
 
         private double _previousBiasGradient;
         private double[] _previousWeightGradient;
-
         private readonly double _learningRate, _momentumScalar;
         private readonly int _batchSize;
+        #endregion
 
         internal Neuron(int numInputs, ActivationFunctions activation, double learningRate, double momentumScalar, int batchSize)
         {
