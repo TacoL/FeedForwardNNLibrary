@@ -83,7 +83,7 @@ namespace Iris_Flower__Loaded_
 
             for (int i = 0; i < samples.Count; i++)
             {
-                double[] outputs = nn.forwardPropagate(samples[i].inputs);
+                double[] outputs = nn.ForwardPropagate(samples[i].inputs);
 
                 int rowWithMaxValue = Array.IndexOf(outputs, outputs.Max());
 

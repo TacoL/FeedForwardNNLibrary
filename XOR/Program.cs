@@ -28,13 +28,13 @@ namespace XOR
             trainingSamples.Add(new TrainingSample(new double[] { 1, 1 }, new double[] { 0 }));
 
             //train network
-            nn.train(trainingSamples, 100000);
+            nn.Train(trainingSamples, 100000).Wait();
 
             //results
-            Console.WriteLine(nn.forwardPropagate(new double[] { 0, 0 })[0]);
-            Console.WriteLine(nn.forwardPropagate(new double[] { 0, 1 })[0]);
-            Console.WriteLine(nn.forwardPropagate(new double[] { 1, 0 })[0]);
-            Console.WriteLine(nn.forwardPropagate(new double[] { 1, 1 })[0]);
+            Console.WriteLine(nn.ForwardPropagate(new double[] { 0, 0 })[0]);
+            Console.WriteLine(nn.ForwardPropagate(new double[] { 0, 1 })[0]);
+            Console.WriteLine(nn.ForwardPropagate(new double[] { 1, 0 })[0]);
+            Console.WriteLine(nn.ForwardPropagate(new double[] { 1, 1 })[0]);
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

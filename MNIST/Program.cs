@@ -37,20 +37,18 @@ namespace MNIST
             while ((line = sr.ReadLine()) != null)
             {
                 String lineDuplicate = line;
-                Task t = new Task(() => createSample(lineDuplicate, trainingSamples));
-                samplesToAdd.Add(t);
+                samplesToAdd.Add(Task.Run(() => createSample(lineDuplicate, trainingSamples)));
                 Console.WriteLine($"Sample: {setupIdx}");
                 setupIdx++;
             }
 
-            samplesToAdd.ForEach(task => task.Start());
             Task.WaitAll(samplesToAdd.ToArray());
 
             sr.Close();
             Console.WriteLine("Ready to train");
 
             // train network
-            mainNN.train(trainingSamples, numEpochs);
+            mainNN.Train(trainingSamples, numEpochs).Wait();
 
             // results
             testNetwork(mainNN, "mnist_train.csv");
@@ -77,7 +75,7 @@ namespace MNIST
                     standardizedPixelValues[i] = double.Parse(dividedString[i + 1]) / 255.0;
 
                 //print output
-                double[] output = mainNN.forwardPropagate(standardizedPixelValues);
+                double[] output = mainNN.ForwardPropagate(standardizedPixelValues);
                 int label = int.Parse(dividedString[0]);
                 int val = output.ToList().IndexOf(output.Max());
                 if (val == label)
